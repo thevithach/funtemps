@@ -3,89 +3,54 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/thevithach/funtemps/conv"
+	"github.com/thevithach/funtemps/funfacts"
 )
 
 // Definerer flag-variablene i hoved-"scope"
 var fahr float64
 var out string
-var funfacts string
+var funfact string
 var C float64
 var F float64
 var K float64
+var t string
 
-// Bruker init (som anbefalt i dokumentasjonen) for å sikre at flagvariablene
-// er initialisert.
+// Jeg antar at hvis jeg hadde brukt func main() så hadde jeg ikke fått else printene ut?
 func init() {
 
-	/*
-	   Her er eksempler på hvordan man implementerer parsing av flagg.
-	   For eksempel, kommando
-	       funtemps -F 0 -out C
-	   skal returnere output: 0°F er -17.78°C
-	*/
+	// Funfacts, sjekker om flagget er satt og henter funskjonen fra funfacts.go og printer ut basert på input av flagg og argumenter av bruker
 
-	// Definerer og initialiserer flagg-variablene
-	flag.Float64Var(&fahr, "F", 0.0, "temperatur i grader fahrenheit")
-	flag.Float64Var(&C, "C", 0.0, "temperatur i grader celsius")
-	flag.Float64Var(&K, "K", 0.0, "temperatur i grader kelvin")
-	// Du må selv definere flag-variablene for "C" og "K"
-	flag.StringVar(&out, "out", "C", "beregne temperatur i C - celsius, F - farhenheit, K- Kelvin")
-	flag.StringVar(&funfacts, "funfacts", "sun", "\"fun-facts\" om sun - Solen, luna - Månen og terra - Jorden")
-	// Du må selv definere flag-variabelen for -t flagget, som bestemmer
-	// hvilken temperaturskala skal brukes når funfacts skal vises
-
-}
-
-func main() {
-
-	flag.Parse()
-
-	/**
-	    Her må logikken for flaggene og kall til funksjoner fra conv og funfacts
-	    pakkene implementeres.
-
-	    Det er anbefalt å sette opp en tabell med alle mulige kombinasjoner
-	    av flagg. flag-pakken har funksjoner som man kan bruke for å teste
-	    hvor mange flagg og argumenter er spesifisert på kommandolinje.
-
-	        fmt.Println("len(flag.Args())", len(flag.Args()))
-			    fmt.Println("flag.NFlag()", flag.NFlag())
-
-	    Enkelte kombinasjoner skal ikke være gyldige og da må kontrollstrukturer
-	    brukes for å utelukke ugyldige kombinasjoner:
-	    -F, -C, -K kan ikke brukes samtidig
-	    disse tre kan brukes med -out, men ikke med -funfacts
-	    -funfacts kan brukes kun med -t
-	    ...
-	    Jobb deg gjennom alle tilfellene. Vær obs på at det er en del sjekk
-	    implementert i flag-pakken og at den vil skrive ut "Usage" med
-	    beskrivelsene av flagg-variablene, som angitt i parameter fire til
-	    funksjonene Float64Var og StringVar
-	*/
-
-	// Her er noen eksempler du kan bruke i den manuelle testingen
-	fmt.Println(fahr, out, funfacts)
-
-	fmt.Println("len(flag.Args())", len(flag.Args()))
-	fmt.Println("flag.NFlag()", flag.NFlag())
-
-	fmt.Println(isFlagPassed("out"))
-
-	// Eksempel på enkel logikk
-	if out == "C" && isFlagPassed("F") {
-		// Kalle opp funksjonen FahrenheitToCelsius(fahr), som da
-		// skal returnere °C
-		fmt.Println(conv.FahrenheitToCelsius(fahr))
-
-	} else if out == "K" && isFlagPassed("F") {
-		fmt.Println(conv.FahrenheitToKelvin(fahr))
-
+	if t == "C" || t == "F" && isFlagPassed("funfacts") && funfact == "sun" {
+		fmt.Println(funfacts.Sun(t))
+	} else if t == "C" || t == "F" && isFlagPassed("funfacts") && funfact == "luna" {
+		fmt.Println(funfacts.Luna(t))
+	} else if t == "C" || t == "F" && isFlagPassed("funfacts") && funfact == "terra" {
+		fmt.Println(funfacts.Terra(t))
 	} else {
 		fmt.Println("Ugyldig kombinasjon av flagg")
 	}
 
+	// beregning fra Fahrenheit til celsius og kelvin
+	if out == "C" && isFlagPassed("F") {
+		fmt.Printf("%.2f", conv.FahrenheitToCelsius(fahr))
+	} else if out == "K" && isFlagPassed("F") {
+		fmt.Printf("%.2f", conv.FahrenheitToKelvin(fahr))
+	} else if out == "C" && isFlagPassed("K") {
+		fmt.Printf("%.2f", conv.KelvinToCelsius(K))
+	} else if out == "F" && isFlagPassed("K") {
+		fmt.Printf("%.2f", conv.KelvinToFahrenheit(K))
+	} else if out == "F" && isFlagPassed("C") {
+		fmt.Printf("%.2f", conv.CelsiusToFahrenheit(C))
+	} else if out == "K" && isFlagPassed("C") {
+		fmt.Printf("%.2f", conv.CelsiusToKelvin(C))
+	} else {
+		fmt.Println("Ugyldig kombinasjon av flagg")
+	}
 }
+
+// Eksempel på enkel logikk/
 
 // Funksjonen sjekker om flagget er spesifisert på kommandolinje
 // Du trenger ikke å bruke den, men den kan hjelpe med logikken
